@@ -30,6 +30,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdio.h>
 #include "can_params.h"
 #include "can.h"
 /* USER CODE END Includes */
@@ -42,10 +43,17 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
+// Uncomment this line to enable printf with USART
+// Make sure to activate USART peripheral first
+// #define ENABLE_PRINTF_USART
+
+#ifdef ENABLE_PRINTF_USART
+#define USART huart3
+#endif
+
 #define BOARD_CAN_ID (uint8_t)0x103
 #define BOARD_TYPE_ID 0
 #define BOARD_TTL 10
-
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -76,7 +84,16 @@ static void MX_CAN1_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
+#ifdef ENABLE_PRINTF_USART
 
+int _write(int file, char *ptr, int len);
+
+#else
+
+// If we are not in debug mode, remove every printf() calls
+#define printf(fmt,...)
+
+#endif
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -377,7 +394,13 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+#ifdef ENABLE_PRINTF_USART
+int _write(int file, char *ptr, int len) {
+	HAL_UART_Transmit(&USART, (uint8_t*)ptr, len, HAL_MAX_DELAY);
 
+	return len;
+}
+#endif
 /* USER CODE END 4 */
 
  /* MPU Configuration */
